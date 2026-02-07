@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magic Book</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  height: 100vh;
+  background: url("default_bg.jpeg") center/cover no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+}
+
+/* CONTAINER */
+#container {
+  position: relative;
+}
+
+/* LANGUAGE BUTTON */
+#langBtn {
+  position: absolute;
+  top: -50px;
+  right: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 10;
+  user-select: none;
+}
+
+/* BOOK */
+#book {
+  width: 260px;
+  perspective: 1200px;
+  position: relative;
+}
+
+#page {
+  width: 100%;
+  display: block;
+  border-radius: 10px;
+  transform-origin: left;
+  transition: transform 0.6s ease, box-shadow 0.6s ease;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  user-select: none;
+}
+
+/* FLIP EFFECT */
+.flip {
+  transform: rotateY(-15deg);
+  box-shadow: -15px 10px 30px rgba(0,0,0,0.5);
+}
+
+/* OPEN TEXT */
+#openText {
+  position: absolute;
+  bottom: 18px;
+  width: 100%;
+  text-align: center;
+  color: white;
+  font-size: 16px;
+  animation: blink 1.6s infinite;
+}
+
+@keyframes blink {
+  0%,100% { opacity: 1 }
+  50% { opacity: 0 }
+}
+</style>
+</head>
+
+<body>
+
+<audio id="bgm" src="Theme.aac" loop></audio>
+<audio id="flipSound" src="Lembar.aac"></audio>
+
+<div id="container">
+  <!-- TOMBOL BAHASA -->
+  <div id="langBtn">EN</div>
+
+  <!-- BUKU -->
+  <div id="book">
+    <img id="page" src="sampul.jpeg" alt="page">
+    <div id="openText">Click to open</div>
+  </div>
+</div>
+
+<script>
+/* ===== DATA HALAMAN ===== */
+
+const pagesID = [
+  "sampul.jpeg",
+  "paper1.png",
+  "paper2.png",
+  "paper3.png",
+  "paper4.png",
+  "sampul2.jpeg"
+];
+
+const pagesEN = [
+  "sampul.jpeg",
+  "paper1_en.png",
+  "paper2_en.png",
+  "paper3_en.png",
+  "paper4_en.png",
+  "sampul2.jpeg"
+];
+
+/* ===== STATE ===== */
+
+let currentLang = "ID";   // DEFAULT = INDONESIA
+let index = 0;
+
+/* ===== ELEMENT ===== */
+
+const page = document.getElementById("page");
+const book = document.getElementById("book");
+const langBtn = document.getElementById("langBtn");
+const openText = document.getElementById("openText");
+const flipSound = document.getElementById("flipSound");
+const bgm = document.getElementById("bgm");
+
+/* ===== AUDIO ===== */
+
+bgm.volume = 0.4;
+bgm.play();
+
+/* ===== FUNCTION ===== */
+
+function getPages() {
+  return currentLang === "EN" ? pagesEN : pagesID;
+}
+
+function flipPage() {
+  page.classList.add("flip");
+  flipSound.currentTime = 0;
+  flipSound.play();
+
+  setTimeout(() => {
+    page.src = getPages()[index];
+    page.classList.remove("flip");
+  }, 300);
+}
+
+/* ===== CLICK BUKU ===== */
+
+book.addEventListener("click", () => {
+  if (index < getPages().length - 1) {
+    index++;
+    openText.style.display = "none";
+    flipPage();
+  }
+});
+
+/* ===== TOGGLE BAHASA ===== */
+
+langBtn.addEventListener("click", (e) => {
+  e.stopPropagation(); // ⛔ STOP FLIP
+
+  if (currentLang === "ID") {
+    currentLang = "EN";
+    langBtn.innerText = "ID"; // tujuan balik
+  } else {
+    currentLang = "ID";
+    langBtn.innerText = "EN";
+  }
+
+  // GANTI ISI HALAMAN TANPA PINDAH INDEX
+  page.src = getPages()[index];
+});
+</script>
+
+</body>
+</html>
